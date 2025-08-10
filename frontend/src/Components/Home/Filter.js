@@ -18,11 +18,9 @@ const Filter = () => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
   }
-  const handleFilterChange = (filterName, value) => {
-    setSelectedFilters((prevFilters)=>({
-      ...prevFilters,
-      [filterName]:value,
-    }))
+  const handleFilterChange = (filters) => {
+    // Handle receiving all filters at once
+    setSelectedFilters(filters);
   }
 
   return <>

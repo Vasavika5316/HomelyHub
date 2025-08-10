@@ -1,4 +1,4 @@
-import axios from "axios"
+import api from "../../utils/axios"
 import bookingSlice, {
     addBooking,
     setBookings,
@@ -7,7 +7,7 @@ import bookingSlice, {
 
 export const createBooking = (bookingDate) =>async(dispatch)=>{
     try{
-        const response = await axios.post("/api/v1/rent/user/booking/new", bookingDate)
+        const response = await api.post("/api/v1/rent/user/booking/new", bookingDate)
         dispatch(addBooking(response.data.data.booking))
     } catch (error) {
         console.error("Error creating booking:", error)
@@ -15,7 +15,7 @@ export const createBooking = (bookingDate) =>async(dispatch)=>{
 }
 export const fetchBookingDetails=(bookingId)=> async(dispatch)=>{
     try{
-        const response = await axios.get(`/api/v1/rent/user/booking/${bookingId}`)
+        const response = await api.get(`/api/v1/rent/user/booking/${bookingId}`)
         dispatch(setBookingDetails(response.data.data.bookings));
         // console.log(response.data.data.bookings)
     } catch (error){
@@ -24,7 +24,7 @@ export const fetchBookingDetails=(bookingId)=> async(dispatch)=>{
 }
 export const fetchUserBookings=()=>async(dispatch)=>{
     try{
-        const response = await axios.get("/api/v1/rent/user/booking/")
+        const response = await api.get("/api/v1/rent/user/booking/")
         dispatch(setBookings(response.data.data.bookings))
     } catch(error){
         console.error("Error fetching bookings:", error)

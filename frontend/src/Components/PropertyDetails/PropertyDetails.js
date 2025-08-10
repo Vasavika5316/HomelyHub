@@ -28,27 +28,28 @@ const PropertyDetails = () => {
                 </h6>
                 <PropertyImg images={images}/>
                 <div className='middle-container row'>
-                    <div className='des-and-amenities col-md-8 col-sm-12 col-12'>
-                        <h2 className='property-description-header'>Description</h2>
-                        <p className='property-description'>
-                            {description} <br/><br/>
-                            Max number of Guests: {maximumGuest}
-                        </p>
-                        <hr/>
-                        <PropertyAmenities amenities={amenities}/>
-                        <br/><br/>
-                    </div>
-                    <div className='property-payment col-md-6 col-sm-12 col-12'>
-                        <BookingForm
-                        propertyId={id}
-                        price={price}
-                        propertyNmae={propertyName}
-                        address={address}
-                        maximumGuest={maximumGuest}
-                        currentBookings={currentBookings}                    
-                    />
-                    </div>
-                </div>
+  <div className='des-and-amenities col-md-7 col-sm-12 col-12'>
+    <h2 className='property-description-header'>Description</h2>
+    <p className='property-description'>
+      {description} <br /><br />
+      Max number of Guests: {maximumGuest}
+    </p>
+    <hr />
+    <PropertyAmenities amenities={amenities} />
+    <br /><br />
+  </div>
+  <div className='property-payment col-md-5 col-sm-12 col-12'>
+    <BookingForm
+      propertyId={id}
+      price={price}
+      propertyNmae={propertyName}
+      address={address}
+      maximumGuest={maximumGuest}
+      currentBookings={currentBookings}
+    />
+  </div>
+</div>
+
                 <hr></hr>
                 <div className='property-map'>
                     <div className='map-image-exinfo-container row'>

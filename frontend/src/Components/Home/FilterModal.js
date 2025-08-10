@@ -12,6 +12,7 @@ const FilterModal = ({selectedFilters, onFilterChange, onClose}) => {
     const [propertyType, setPropertyType] = useState (selectedFilters.propertyType || "")
     const [roomType, setRoomType] = useState (selectedFilters.roomType || "")
     const [amenities, setAmenities] = useState (selectedFilters.amenities || [])
+    const [priceError, setPriceError] = useState("");
     useEffect (()=>{
         setPriceRange({
             min: selectedFilters.priceRange?.min || 600,
@@ -25,19 +26,63 @@ const FilterModal = ({selectedFilters, onFilterChange, onClose}) => {
         setPriceRange(value);
     }
     const handleMinInputChange = (e) => {
-        const minValue = parseInt(e.target.value, 10);
-        setPriceRange((prev) => ({...prev, min:minValue}))
+        const value = e.target.value;
+        // Allow any string (including empty) while typing
+        setPriceRange((prev) => ({...prev, min: value}));
     }
     const handleMaxInputChange = (e) => {
-        const maxValue = parseInt(e.target.value, 10);
-        setPriceRange((prev) => ({...prev, max:maxValue}))
+        const value = e.target.value;
+        // Allow any string (including empty) while typing
+        setPriceRange((prev) => ({...prev, max: value}));
+    }
+    // On blur, coerce to default if empty and auto-correct if min > max
+    const handleMinInputBlur = () => {
+        setPriceRange((prev) => {
+            let min = prev.min === "" ? 600 : parseInt(prev.min, 10);
+            let max = prev.max === "" ? 30000 : parseInt(prev.max, 10);
+            if (isNaN(min)) min = 600;
+            if (isNaN(max)) max = 30000;
+            if (min > max) {
+                max = min;
+            }
+            return { min: String(min), max: String(max) };
+        });
+    }
+    const handleMaxInputBlur = () => {
+        setPriceRange((prev) => {
+            let min = prev.min === "" ? 600 : parseInt(prev.min, 10);
+            let max = prev.max === "" ? 30000 : parseInt(prev.max, 10);
+            if (isNaN(min)) min = 600;
+            if (isNaN(max)) max = 30000;
+            if (max < min) {
+                min = max;
+            }
+            return { min: String(min), max: String(max) };
+        });
     }
     const handleFilterChange=()=>{
-        onFilterChange("minPrice", priceRange.min);
-        onFilterChange("maxPrice", priceRange.max);
-        onFilterChange("propertyType", propertyType);
-        onFilterChange("roomType", roomType);
-        onFilterChange("amenities", amenities);
+        // Validate min and max
+        let min = priceRange.min === "" ? 600 : parseInt(priceRange.min, 10);
+        let max = priceRange.max === "" ? 30000 : parseInt(priceRange.max, 10);
+        if (isNaN(min)) min = 600;
+        if (isNaN(max)) max = 30000;
+        if (min < 600 || max > 30000) {
+            setPriceError("Price must be between 600 and 30000.");
+            return;
+        }
+        if (min > max) {
+            setPriceError("Min price cannot be greater than max price.");
+            return;
+        }
+        setPriceError("");
+        const allFilters = {
+            propertyType,
+            roomType,
+            amenities,
+            minPrice: min,
+            maxPrice: max,
+        };
+        onFilterChange(allFilters);
         onClose();
     }
     const propertyTypeOptions = [
@@ -47,14 +92,14 @@ const FilterModal = ({selectedFilters, onFilterChange, onClose}) => {
         {value:"Hotel", label:"Hotel",icon:"meeting_room"},
     ]
     const roomTypeOptions = [
-        {value:"Entire Room", label:"Entire Room",icon:"hotel"},
+        {value:"Entire Home", label:"Entire Home",icon:"home"},
         {value:"Room", label:"Room",icon:"meeting_room"},
-        {value:"AnyType", label:"AnyType",icon:"apartment"},
+        {value:"Anytype", label:"Anytype",icon:"apartment"},
     ]
     const amenitiesTypeOptions = [
         {value:"Wifi", label:"Wifi",icon:"wifi"},
         {value:"Kitchen", label:"Kitchen",icon:"kitchen"},
-        {value:"Ac House", label:"AC",icon:"ac_unit"},
+        {value:"Ac", label:"AC",icon:"ac_unit"},
         {value:"Washing Machine", label:"Washing Machine",icon:"local_laundry_service"},
         {value:"Tv", label:"Tv",icon:"tv"},
         {value:"Pool", label:"Pool",icon:"pool"},
@@ -91,7 +136,7 @@ const FilterModal = ({selectedFilters, onFilterChange, onClose}) => {
                 <span>&times;</span>
             </button>
             <div className='modal-filters-container'>
-                <div className='filter-section'>
+                <div className='filter-section price-range-section'>
                     <label>Price range:</label>
                     <InputRange
                     minValue={600}
@@ -99,19 +144,28 @@ const FilterModal = ({selectedFilters, onFilterChange, onClose}) => {
                     value={priceRange}
                     onChange={handlePriceRangeChange}
                     />
-                    <div>
+                    <div className="price-inputs">
                         <input
                             type='number'
+                            placeholder="Min Price"
                             value={priceRange.min}
                             onChange={handleMinInputChange}
+                            onBlur={handleMinInputBlur}
+                            min="600"
+                            max={priceRange.max}
                         />
-                        <span></span>
+                        <span style={{alignSelf: 'center', fontWeight: 'bold'}}>to</span>
                         <input
                             type='number'
+                            placeholder="Max Price"
                             value={priceRange.max}
                             onChange={handleMaxInputChange}
+                            onBlur={handleMaxInputBlur}
+                            min={priceRange.min}
+                            max="30000"
                         />
                     </div>
+                    {priceError && <p className="error-message">{priceError}</p>}
                 </div>
                 <div className='filter-section'>
                     <label>Property Type: </label>

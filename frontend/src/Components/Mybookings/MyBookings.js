@@ -18,7 +18,12 @@ const MyBookings = () => {
     navigate(`/user/booking/${bookingId}`)
   }
   if(bookings.length===0 && !loading){
-    return <div>My Bookings are not available...</div>
+    return (
+      <div>
+        <ProgressSteps />
+        <p>Bookings are not available...</p>
+      </div>
+    )
   }
   return (
     <>

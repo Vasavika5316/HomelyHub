@@ -6,7 +6,7 @@ import PropertyDetails from './Components/PropertyDetails/PropertyDetails';
 import Login from './Components/User/Login';
 import { Flip, ToastContainer } from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { currentUser } from './Store/User/user-action';
 import { userActions } from './Store/User/user-slice';
@@ -27,13 +27,21 @@ import AccomodationForm from './Components/Accomodation/AccomodationForm';
 function App() {
   const stripePromise = loadStripe("pk_test_51ReRXtERSaQf8Zr2fR6OrZBBAdZjzp0cuKiDdBSeSH2Xiwho8peHIgtG0BoOFkrDyM71rkBa5DwKOKOENFBvCrOj004Y1zFDEO");
   const dispatch = useDispatch();
-  const {errors} = useSelector((state)=>state.user);
+  const {errors, loading} = useSelector((state)=>state.user);
+  const [authChecked, setAuthChecked] = useState(false);
+
   useEffect(()=>{
     if (errors) {
       dispatch(userActions.clearError())
     }
-    dispatch(currentUser());
-  }, [errors, dispatch])
+    
+    // Only check auth once on app load
+    if (!authChecked) {
+      dispatch(currentUser()).finally(() => {
+        setAuthChecked(true);
+      });
+    }
+  }, [errors, dispatch, authChecked])
 
   const router = createBrowserRouter(
     createRoutesFromElements(

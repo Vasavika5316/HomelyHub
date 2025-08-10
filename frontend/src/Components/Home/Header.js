@@ -10,17 +10,41 @@ import {toast} from "react-toastify";
 
 const Header = () => {
   const dispatch=useDispatch();
-  const {isAuthenticated, user} = useSelector((state)=>state.user);
+  const {isAuthenticated, user, loading} = useSelector((state)=>state.user);
   const navigate = useNavigate();
+  
   const logout = () => {
     dispatch(Logout());
+    // Reset filters on logout
+    dispatch(propertyAction.updateSearchParams({}));
+    dispatch(getAllProperties());
     toast.success("User has been logged out successfully");
     navigate("/");
   }
+  
   const allproperties = ()=> {
     dispatch(propertyAction.updateSearchParams({}));
     dispatch(getAllProperties());
   }
+
+  // Don't render auth UI while checking authentication
+  if (loading) {
+    return (
+      <nav className='header row sticky-top'>
+        <Link to="/">
+          <img src = "/assets/logo.png" alt = "logo" className='logo' onClick={allproperties}/> 
+        </Link>
+        <div className='search_filter'>
+          <Search/>
+          <Filter/>
+        </div>
+        <div className="loading-auth">
+          <span className="material-symbols-outlined">hourglass_empty</span>
+        </div>
+      </nav>
+    );
+  }
+
   return (
     <>
         <nav className='header row sticky-top'>
@@ -45,10 +69,11 @@ const Header = () => {
                   data-bs-toggle='dropdown'
                   aria-expanded="false"
                 >
-                  {user.avatar.url && (
+                  {user.avatar && user.avatar.url ? (
                     <img src={user.avatar.url} className='user-img' alt='icon'/>
+                  ) : (
+                    <span className="material-symbols-outlined">account_circle</span>
                   )}
-                  {!user.avatar.url === "" && "account_ciricle"}
                 </span>
                 <ul className='dropdown-menu' aria-labelledby='dropdownMenuLink'>
                   <li>
